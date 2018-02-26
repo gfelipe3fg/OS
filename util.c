@@ -6,14 +6,14 @@
 int _debug_mode;
 int _quiet_mode;
 
-//unsigned lg2(unsigned x) {
-//    unsigned r = 0u;
-//    while(x > 1u) {
-//       x = x >> 1u;
-//       r++;
-//    }
-//    return r;
-//}
+unsigned lg2(unsigned x) {
+    unsigned r = 0u;
+    while(x > 1u) {
+       x = x >> 1u;
+       r++;
+    }
+    return r;
+}
 
 void memCheck(void *ptr) {
     if (!ptr) {
