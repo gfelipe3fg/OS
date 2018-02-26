@@ -41,11 +41,11 @@ struct Memory {
 
 Algo AlgoOfChoice(char *str) {
     assert(str);
-    if (strcmp(str, "FIFO") == 0) {
+    if (strcmp(str, "FIFO") == 0 || strcmp(str,"fifo") == 0) {
         return FIFO;
-    } else if (strcmp(str, "LRU") == 0) {
+    } else if (strcmp(str, "LRU") == 0 || strcmp(str, "lru") == 0) {
         return LRU;
-    } else if (strcmp(str, "VMS") == 0) {
+    } else if (strcmp(str, "VMS") == 0 || strcmp(str, "vms") == 0) {
         return VMS;
     } else {
         printf("ERROR: Algorithm '%s' of Page Replacement invalid.\n", str);
