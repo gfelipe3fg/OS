@@ -14,8 +14,8 @@
 /* Prints the name of the int and its value. */
 #define printvar(name) (printf("%s = %d\n", #name, name))
 
-///* Returns log of x in base 2. */
-//unsigned lg2(unsigned x);
+/* Returns log of x in base 2. */
+unsigned lg2(unsigned x);
 
 /* Checks for allocation error, called after a malloc. */
 void memCheck(void *ptr);
