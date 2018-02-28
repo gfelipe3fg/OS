@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "simulator.h"
+#include "memory.h"
+
+void runSim(Options ops){
+    PageTable *mem = mem_init(ops.frames_input);
+    TraceEntry entries[MAX_ACCESSES];
+
+    loadEntries(entries,ops);
+    print_memory(mem);
+}
+
+void loadEntries(TraceEntry * entries,Options ops){
+    int i = 0;
+    FILE *fp = (FILE *) fopen (ops.filename,"r");
+    if(fp == NULL){
+        printf("Error openning file: %s\n",ops.filename);
+        exit(EXIT_FAILURE);
+    }
+    while(fscanf(fp,"%x %c", &entries[i].addr,&entries[i].rw)==2);
+    fclose(fp);
+}
