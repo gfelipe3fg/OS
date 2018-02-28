@@ -11,32 +11,6 @@
 
 #define CLEAR_INTERVAL 1000 /* How often the R bits are cleaned. */
 
-/* Replacement Algorithms. */
-typedef enum {
-   FIFO,    /* First In, First Our */
-    LRU,    /* Least Recently Used */
-    VMS     /* Second Chance */
-} Algo;
-
-/* Page frame */
-typedef struct PageFrame {
-    int ref,                /* Reference */
-        mod,                /*Modification */
-        last_element,
-        first_element;
-    int virtual_index;      /*  Index in the virtual pages table (p_table) */
-} PageFrame;
-
-struct Memory {
-    Algo algo;
-    PageFrame *frames;          /* Page Frame (Physical Memory) */
-    int time_counter,           /* Time counter (Updates every clock interrupt) */
-        page_size,              /* Page size in KB */
-        numPF,                  /* Number of page frames */
-        numUPF;                 /* Number of page frames used */
-    Statistics stats; /* Statistics */
-};
-
 /********** Functions **********/
 
 Algo AlgoOfChoice(char *str) {
@@ -170,6 +144,10 @@ void checkPage(Memory *mem, int frame_i) {
         mem->stats.writes_to_disk += 1;
 
         DEBUG printvar(mem->stats.writes_to_disk);
+    }else{
+        DEBUG printf("Simulation! +1 Read page \n");
+        mem->stats.reads_to_disk += 1;
+        DEBUG printvar(mem->stats.writes_to_disk);
     }
     DEBUG printf("+1 Page read\n");
     mem->stats.page_faults += 1;
@@ -183,8 +161,8 @@ void loadPage(Memory *mem, int vir_i, int frame_i, char rw) {
     mem->frames[frame_i].virtual_index = vir_i;
     mem->frames[frame_i].last_element = mem->time_counter;
     mem->frames[frame_i].first_element = mem->time_counter;
-
     mem->frames[frame_i].ref = TRUE;
+
     if (rw == 'W') {
         mem->frames[frame_i].mod = TRUE;
     }
@@ -224,6 +202,7 @@ Memory *memInit(char *algo, int nframes) {
 
     mem->stats.writes_to_disk = 0;
     mem->stats.page_faults = 0 ;
+    mem->stats.reads_to_disk = 0;
 
     mem->time_counter = 0;
     mem->numUPF = 0;
@@ -249,7 +228,7 @@ void freeMem(Memory *mem) {
     free(mem);
 }
 
-void memClockInturrupt(Memory *mem) {
+/*void memClockInturrupt(Memory *mem) {
     int i;
 
     mem->time_counter += 1;
@@ -261,24 +240,23 @@ void memClockInturrupt(Memory *mem) {
             mem->frames[i].ref =  FALSE;
         }
     }
-}
+}*/
 
-void accessMem(Memory *mem, unsigned vir_addr, char rw) {
-    int vir_i, frame_i;
+void accessMem(Memory *mem, unsigned vir_i, char rw) {
+    int frame_i;
 
-    vir_i = vir_addr >> (lg2(mem->page_size) + 10);
     frame_i = findPage(mem, vir_i);
 
-    /* Page fault? */
+    /* Page not in page table */
     if (frame_i == NOT_IN_MEMORY) {
         DEBUG printf("==> PAGE FAULT!\n"); 
 
-        /* Algorithm only comes into action when physical memory is full. */
+        /* Physical memory has space */
         if (mem->numUPF < mem->numPF) {
             DEBUG printf("[!] \n""Algorithm does not start action yet: %d empty pages.\n", mem->numPF - mem->numUPF);
             loadPage(mem, vir_i, mem->numUPF, rw);
             mem->numUPF += 1;
-        } else {
+        } else { // Physical memory full
             int chosen_frame_i; 
 
             /* When a page fault occurs, you should choosePage a page... */
@@ -293,7 +271,7 @@ void accessMem(Memory *mem, unsigned vir_addr, char rw) {
 
             mem->frames[chosen_frame_i].ref = TRUE;
         }
-    } else {
+    } else { // Page is in table
         DEBUG printf("==> Page HIT!\n");
 
         mem->frames[frame_i].ref = TRUE ;
@@ -309,7 +287,7 @@ void accessMem(Memory *mem, unsigned vir_addr, char rw) {
 void printFrames(Memory *mem) {
     int i;
 
-    printf("\nTime Countet: %d\n+", mem->time_counter);
+    printf("\nTime Counter: %d\n+", mem->time_counter);
     for (i = 0; i < 50; i++) printf("-");
     printf("\n|\tframe_i\tvirtual_index\tref\tmod\tfirst\tlast\n");
     for (i = 0; i < mem->numPF; i++) {
@@ -324,10 +302,6 @@ void printFrames(Memory *mem) {
     printf("+");
     for (i = 0; i < 50; i++) printf("-");
     printf("\n");
-}
-
-Statistics memStats(Memory *mem) {
-    return mem->stats;
 }
 
 int memTime(Memory *mem) {

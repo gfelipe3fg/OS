@@ -7,40 +7,25 @@
 #include <string.h>
 #include <assert.h>
 
-typedef struct MemAccess {
-    char rw;
-    unsigned addr;
-} MemAccess;
-
-struct Simulator {
-    MemAccess memAccesses[MAX_MEM_ACCESS];
-    int numMemAccesses;
-    Memory *mem;
-};
-
 /********** Functions **********/
-
 Options argsOptions(int argc, const char **argv) {
     if (argc == 4 || argc == 5) {
         Options opts;
         strcpy(opts.filename, argv[1]);
         opts.nFrames = atoi(argv[2]);
         strcpy(opts.algo, argv[3]);
-        if (argc == 5) opts.debug_mode = atoi(argv[4]);
+        if (argc == 5) {
+            if(strcmp(argv[4],"debug")==0)
+                opts.debug_mode = 1;
+            else
+                opts.debug_mode = 0;
+        }
         else opts.debug_mode = 0;
         return opts;
     } else {
         printf("ERROR: Incorrect number of Arguments (%d). Expected 4 or 5.\n", argc);
         exit(EXIT_FAILURE); 
     }
-}
-
-void printOptions(Options opts) {
-    printHeader("Simulation Options");
-    printf("\tInput File: %s\n", opts.filename);
-    printf("\tNumber of frames: %d\n", opts.nFrames);
-    printf("\tReplacement Algorithm: %s\n", opts.algo);
-    printf("\tDepreciation Mode: %d\n", opts.debug_mode);
 }
 
 Simulator *simInit(Options opts) {
@@ -88,10 +73,10 @@ void runSim(Simulator *sim) {
                         sim->memAccesses[i].addr,
                         sim->memAccesses[i].rw);
         DEBUG printf("\t- Written Pages: %d\n\t- Pages read: %d\n\n",
-                     memStats(sim->mem).writes_to_disk,
-                     memStats(sim->mem).page_faults);
+                     sim->mem->stats.writes_to_disk,
+                     sim->mem->stats.page_faults);
 
-        memClockInturrupt(sim->mem);
+        //memClockInturrupt(sim->mem);
         accessMem(sim->mem, sim->memAccesses[i].addr, sim->memAccesses[i].rw);
 
         DEBUG printFrames(sim->mem);
@@ -100,20 +85,12 @@ void runSim(Simulator *sim) {
 }
 
 void printSimResult(Simulator *sim) {
-    Statistics stats = memStats(sim->mem);
-
-    printHeader("Results");
-    printf("\tTotal number of accesses to memory: %d\n\t Written Pages: %d\n\tPages read: %d\n",
-        sim->numMemAccesses,
-        stats.writes_to_disk, 
-        stats.page_faults);
-}
-
-void simResult(Simulator *sim, int *writes_to_disk, int *page_faults) {
-    Statistics stats = memStats(sim->mem);
-
-    *writes_to_disk = stats.writes_to_disk;
-    *page_faults = stats.page_faults;    
+    Statistics stats = sim->mem->stats;
+    printf("---[ Results ]---\n");
+    printf("\tTotal memory frames: %d\n",sim->mem->numPF);
+    printf("\tEvents in trace: %d\n",sim->numMemAccesses);
+    printf("\tTotal disk writes: %d\n",stats.writes_to_disk);
+    printf("\tTotal disk reads: %d\n",stats.reads_to_disk);
 }
 
 void freeSim(Simulator *sim) {

@@ -9,7 +9,6 @@ int main(int argc, char const *argv[]) {
     Simulator *sim; 
 
     opts = argsOptions(argc, argv);
-    printOptions(opts);
 
     sim = simInit(opts);
     runSim(sim);

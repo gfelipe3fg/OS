@@ -9,13 +9,10 @@
 /* Debug mode */
 
 #define DEBUG if(getDebugMode())
-#define QUIET if(getQuietMode())
 
 /* Prints the name of the int and its value. */
 #define printvar(name) (printf("%s = %d\n", #name, name))
 
-/* Returns log of x in base 2. */
-unsigned lg2(unsigned x);
 
 /* Checks for allocation error, called after a malloc. */
 void memCheck(void *ptr);
@@ -23,11 +20,8 @@ void memCheck(void *ptr);
 /* Checks whether a file can be opened. */
 void fileCheck(FILE *fp, char *filename);
 
-void printHeader(const char *str);
-
 void setDebugMode(int debug_mode);
 int getDebugMode(void);
-int getQuietMode(void);
 
 /* Queue of integers to aid in some algorithms. */
 #define MAX_QUEUE 50000

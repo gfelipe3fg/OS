@@ -29,10 +29,6 @@ void fileCheck(FILE *fp, char *filename) {
     }
 }
 
-void printHeader(const char *str) {
-    printf("---[ %s ]---\n", str);
-}
-
 void setDebugMode(int debug_mode) {
     _debug_mode = debug_mode;
     _quiet_mode = debug_mode;

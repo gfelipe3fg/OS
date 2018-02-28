@@ -12,3 +12,6 @@ simulator.o: simulator.c simulator.h memory.h util.h
 
 memory.o: memory.c memory.h util.h
 	gcc -c memory.c
+
+clean:
+	rm *.o memsim
