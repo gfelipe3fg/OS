@@ -4,18 +4,18 @@
 #include "memory.h"
 
 void runSim(Options ops){
-    PageTable *mem = mem_init(ops.frames_input);
+    PageTable *mem = mem_init(ops.frames_input,ops.method);
     TraceEntry entries[MAX_ACCESSES];
     Statistics stats;
 
     loadEntries(entries,ops,&stats);
     print_memory(mem);
 
-    int i;
+    int i,garbage;
     for(i = 0; i < stats.num_mem_accesses;i++){
         accessMem(mem,entries[i]);
-        print_memory(mem);
     }
+    print_memory(mem);
 }
 
 void loadEntries(TraceEntry * entries,Options ops, Statistics * stats){
