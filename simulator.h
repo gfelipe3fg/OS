@@ -1,7 +1,7 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
-#include "memory.h"
+//#include "memory.h"
 
 #define MAX_ARGV 301 // 300 characters max
 #define MAX_ACCESSES 1000001
@@ -26,7 +26,6 @@ typedef struct Options{
 
 void runSim(Options ops);
 
-void loadEntries(TraceEntry * entries,Options ops);
+void loadEntries(TraceEntry * entries,Options ops,Statistics* stats);
 
-void print_results(PageTable *mem);
 #endif
